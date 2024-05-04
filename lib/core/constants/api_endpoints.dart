@@ -22,9 +22,9 @@ class ApiEndpoints {
   static const String _localDesktopImageUrl = "http://127.0.0.1:8000/";
   static const String _localWebImageUrl = "http://127.0.0.1:8000/";
 
-  static const String _serverBaseUrl = 'https://api.dailycourierservice.com//user';
-  static const String _serverSocketUrl = 'https://api.dailycourierservice.com';
-  static const String _serverImageUrl = 'https://api.dailycourierservice.com/';
+  static const String _serverBaseUrl = 'https://passivedesk.com/api';
+  static const String _serverSocketUrl = 'https://passivedesk.com/';
+  static const String _serverImageUrl = 'https://passivedesk.com/';
 
   static String get baseUrl => _getBaseUrl;
   static String get socketUrl => _getSocketUrl;
