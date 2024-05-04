@@ -47,26 +47,68 @@ class ItemController extends StateNotifier<ItemControllerData> {
     required int qty,
     required int inventoryId,
   }) async {
-    if (!state.creating) {
-      set(creating: true);
+    if (state.uploadedImagePath.isEmpty) {
+      showError(context: context, error: "Select an Image first");
+    } else {
+      if (!state.creating) {
+        set(creating: true);
 
-      Item item = Item(id: 0, inventoryId: inventoryId, name: name, description: description, image: "", qty: qty, createdAt: "");
+        Item item = Item(id: 0, inventoryId: inventoryId, name: name, description: description, image: "", qty: qty, createdAt: "");
 
-      final result = await _itemRepo.createItem(item, state.uploadedImagePath);
+        final result = await _itemRepo.createItem(item, state.uploadedImagePath);
 
-      set(creating: false);
+        set(creating: false);
+
+        result.fold(
+          (failure) => showError(context: context, error: failure.message),
+          (success) async {
+            List<Item> items = state.items;
+
+            final newItem = success.data != null ? success.data as Item : item;
+
+            items.add(newItem);
+
+            set(items: items, uploadedImagePath: "");
+            showSnackBar(context: context, message: success.message);
+
+            Get.back();
+          },
+        );
+      }
+    }
+  }
+
+  void updateItem({
+    required BuildContext context,
+    required String name,
+    required String description,
+    required int qty,
+    required Item item,
+    required int index,
+  }) async {
+    if (!state.updating) {
+      set(updating: true);
+
+      Item uploadItem = item.copyWith(name: name, description: description, qty: qty);
+
+      final result = await _itemRepo.updateItem(uploadItem, state.uploadedImagePath);
+
+      set(updating: false);
 
       result.fold(
         (failure) => showError(context: context, error: failure.message),
         (success) async {
           List<Item> items = state.items;
 
-          final newItem = success.data != null ? success.data as Item : item;
+          final newItem = success.data != null ? success.data as Item : uploadItem;
 
-          items.add(newItem);
+          items.remove(item);
 
-          set(items: items);
+          items.insert(index, newItem);
+
+          set(items: items, uploadedImagePath: "");
           showSnackBar(context: context, message: success.message);
+
           Get.back();
         },
       );

@@ -46,6 +46,7 @@ class ApiEndpoints {
 
   // items // item/inventoryid=7/all
   static String get createItem => "$baseUrl/item/create";
+  static String get updateItem => "$baseUrl/item/update";
 
   static String getItems(int id) {
     return "$baseUrl/item/inventoryid=$id/all";

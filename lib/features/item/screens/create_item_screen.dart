@@ -44,6 +44,18 @@ class _CreateItemScreenState extends ConsumerState<CreateItemScreen> {
     }
   }
 
+  setValue() async {
+    Future.delayed(const Duration(milliseconds: 300)).then((value) {
+      ref.watch(itemControllerProvider.notifier).set(uploadedImagePath: "");
+    });
+  }
+
+  @override
+  void initState() {
+    setValue();
+    super.initState();
+  }
+
   // @override
   // void deactivate() {
   //   ref.watch(itemControllerProvider.notifier).set(uploadedImagePath: "");

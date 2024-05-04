@@ -152,4 +152,59 @@ class ItemRepo {
       return left(Failure(message: "Unknown Error occured, try again later"));
     }
   }
+
+  FutureEither<Success> updateItem(Item item, String imagePath) async {
+    try {
+      final token = await getToken();
+      var headers = {'Authorization': 'Bearer $token'};
+
+      var url = Uri.parse(ApiEndpoints.updateItem);
+
+      var request = http.MultipartRequest("POST", url);
+
+      request.headers.addAll(headers);
+
+      if (imagePath.isNotEmpty) {
+        String ext = imagePath.split('.').last;
+
+        var file = await http.MultipartFile.fromPath("image", imagePath, contentType: MediaType('image', ext));
+        request.files.add(file);
+      }
+
+      request.fields["id"] = item.id.toString();
+      request.fields["name"] = item.name;
+      request.fields["description"] = item.description;
+      request.fields["qty"] = item.qty.toString();
+
+      final response = await request.send();
+
+      final responseData = await response.stream.toBytes();
+      final responseString = String.fromCharCodes(responseData);
+
+      final json = jsonDecode(responseString);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Success success = Success.fromMap(json);
+
+        success.data = Item.fromMap(json["data"]);
+
+        return right(success);
+      } else {
+        final String errorMessage = getErrorMessage(response.statusCode, json);
+
+        return left(Failure(message: errorMessage));
+      }
+    } on SocketException {
+      return left(Failure(message: ErrorMessage.noInternetConnection));
+    } on HttpException {
+      return left(Failure(message: ErrorMessage.httpError));
+    } on FormatException {
+      return left(Failure(message: ErrorMessage.badResponseFormat));
+    } on TimeoutException {
+      return left(Failure(message: ErrorMessage.timeOutError));
+    } catch (e) {
+      log(e.toString());
+      return left(Failure(message: "Unknown Error occured, try again later"));
+    }
+  }
 }
