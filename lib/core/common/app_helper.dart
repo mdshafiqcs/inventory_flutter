@@ -119,14 +119,13 @@ String getErrorMessage(int statusCode, json) {
       return "unauthenticated";
 
     case 403:
-      return json['message'];
+      return json['message'] ?? "Forbidden";
 
     case 404:
-      return json['message'];
+      return json['message'] ?? "Not found";
 
     case 422:
-      final errors = json['errors'];
-      return errors[errors.keys.elementAt(0)][0];
+      return json['message'] ?? "Fields Required";
 
     default:
       return 'Something Went Wrong';
